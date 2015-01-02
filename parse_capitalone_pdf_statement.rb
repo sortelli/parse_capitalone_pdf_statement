@@ -30,11 +30,16 @@ require 'date'
 #
 # @!attribute transactions [r]
 #    @return [Array<CapitalOneStatement::Transaction>] array of charge transactions
+#
+# @!attribute fees [r]
+#    @return [Array<CapitalOneStatement::Transaction>] array of fee transactions
 
 class CapitalOneStatement
   DATE_REGEX        = /(\w{3})\. (\d\d) - (\w{3})\. (\d\d), (\d{4})/
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
+  FEES_REGEX        = /Total Fees This Period +(#{AMOUNT_REGEX.source})/
+  INTEREST_REGEX    = /Total Interest This Period +(#{AMOUNT_REGEX.source})/
   TRANSACTION_REGEX = /^ *(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
                         AMOUNT_REGEX.source
                       }) *$/
@@ -55,31 +60,28 @@ class CapitalOneStatement
     @start_date         = nil
     @end_date           = nil
     @previous_balance   = nil
-    @total_payments     = nil
-    @total_fees         = nil
-    @total_transactions = nil
     @new_balance        = nil
+    @total_payments     = nil
+    @total_transactions = nil
+    @total_fees         = nil
     @payments           = []
     @transactions       = []
+    @fees               = []
 
     parse_from_pdf pdf_path
 
-    sort_by_trx_num = lambda {|trx| trx[:id]}
+    %w{payments transactions fees}.each do |type|
+      trxs  = "@#{type}"
+      total = "@total_#{type}"
 
-    @payments     = @payments    .sort_by &sort_by_trx_num
-    @transactions = @transactions.sort_by &sort_by_trx_num
+      instance_variable_set(trxs, instance_variable_get(trxs).sort_by {|trx| trx[:id]})
 
-    check_total(
-      'payments',
-      @total_payments,
-      @payments.inject(0) {|sum, trx| sum -= trx[:amount]}
-    )
-
-    check_total(
-      'transactions',
-      @total_transactions,
-      @transactions.inject(0) {|sum, trx| sum += trx[:amount]}
-    )
+      check_total(
+        type,
+        instance_variable_get(total),
+        instance_variable_get(trxs).inject(0) {|sum, trx| sum += trx[:amount]}
+      )
+    end
   end
 
   def to_json(*args)
@@ -92,7 +94,8 @@ class CapitalOneStatement
       :total_transactions => @total_transactions,
       :new_balance        => @new_balance,
       :payments           => @payments,
-      :transactions       => @transactions
+      :transactions       => @transactions,
+      :fees               => @fees
     }.to_json(*args)
   end
 
@@ -137,7 +140,29 @@ class CapitalOneStatement
         @total_fees,
         @total_transactions,
         @new_balance = amount_strs.map {|amount| parse_amount(amount)}
+
+        @total_payments = -@total_payments
       end
+    end
+
+    if line =~ FEES_REGEX && $1 != '$0.00'
+      check_billing_cycle
+      @fees << Transaction.new(
+        @fees.size + 1,
+        @end_date, "CAPITAL ONE MEMBER FEE",
+        $1,
+        parse_amount($1)
+      )
+    end
+
+    if line =~ INTEREST_REGEX && $1 != '$0.00'
+      check_billing_cycle
+      @fees << Transaction.new(
+        @fees.size + 1,
+        @end_date, "INTEREST CHARGE:PURCHASES",
+        $1,
+        parse_amount($1)
+      )
     end
 
     transactions, payments = [(0..78), (80..-1)].map do |index|
@@ -167,7 +192,8 @@ class CapitalOneStatement
     return nil unless line =~ TRANSACTION_REGEX &&
                       $4   != "CAPITAL ONE MEMBER FEE"
 
-    raise "Failed to determine billing cycle dates" if @year.nil?
+    check_billing_cycle
+
     year = ($3.upcase == 'DEC' && @dec_from_prev_year) ? @year - 1 : @year
     date = Date.parse('%s-%s-%s' % [year, $3, $2])
 
@@ -177,6 +203,10 @@ class CapitalOneStatement
   def parse_amount(amount)
     num = amount.gsub(/[^\d.]/, '').to_f
     amount.start_with?(?() ? -num : num
+  end
+
+  def check_billing_cycle
+    raise "Failed to determine billing cycle dates" if @year.nil?
   end
 
   def check_total(type, expected, actual)
