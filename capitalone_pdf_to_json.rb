@@ -10,4 +10,4 @@ end
 
 pdf_path = ARGV.first
 
-puts CapitalOneStatement.new(pdf_path).to_json
+puts JSON.pretty_generate(CapitalOneStatement.new(pdf_path))

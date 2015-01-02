@@ -1,12 +1,43 @@
 require 'pdf-reader'
 require 'json'
 
+# CapitalOneStatement object, with data parsed from a PDF statement.
+#
+# @!attribute previous_balance [r]
+#    @return [Float] the "Previous Balance" field listed in the statement
+#
+# @!attribute total_payments [r]
+#    @return [Float] the "Payments and Credits" field listed in the statement
+#
+# @!attribute total_fees [r]
+#    @return [Float] the "Fees and Interest Charged" field listed in the statement
+#
+# @!attribute total_transactions [r]
+#    @return [Float] the "Transactions" field listed in the statement
+#
+# @!attribute new_balance [r]
+#    @return [Float] the New Balance listed in the statement
+#
+# @!attribute payments [r]
+#    @return [Array<CapitalOneStatement::Transaction>] array of payment transactions
+#
+# @!attribute transactions [r]
+#    @return [Array<CapitalOneStatement::Transaction>] array of charge transactions
+
 class CapitalOneStatement
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
   TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
                         AMOUNT_REGEX.source
                       }) *$/
+
+  attr_reader :previous_balance,
+              :total_payments,
+              :total_fees,
+              :total_transactions,
+              :new_balance,
+              :payments,
+              :transactions
 
   def initialize(pdf_path)
     @previous_balance   = nil
@@ -19,7 +50,7 @@ class CapitalOneStatement
 
     parse_from_pdf pdf_path
 
-    sort_by_trx_num = lambda {|trx| trx[:number]}
+    sort_by_trx_num = lambda {|trx| trx[:id]}
 
     @payments     = @payments    .sort_by &sort_by_trx_num
     @transactions = @transactions.sort_by &sort_by_trx_num
@@ -37,8 +68,8 @@ class CapitalOneStatement
     )
   end
 
-  def to_json
-    JSON.pretty_generate({
+  def to_json(*args)
+    {
       :previous_balance   => @previous_balance,
       :total_payments     => @total_payments,
       :total_fees         => @total_fees,
@@ -46,7 +77,7 @@ class CapitalOneStatement
       :new_balance        => @new_balance,
       :payments           => @payments,
       :transactions       => @transactions
-    })
+    }.to_json(*args)
   end
 
   private
@@ -100,14 +131,7 @@ class CapitalOneStatement
   def parse_transaction(line)
     return nil unless line =~ TRANSACTION_REGEX
 
-    {
-      :number     => $1.to_i,
-      :day        => $2,
-      :month      => $3,
-      :desc       => $4,
-      :amount_str => $5,
-      :amount     => parse_amount($5)
-    }
+    Transaction.new($1.to_i, $2, $3, $4, $5, parse_amount($5))
   end
 
   def parse_amount(amount)
@@ -123,5 +147,38 @@ class CapitalOneStatement
       actual,
       expected
     ]
+  end
+
+  # CapitalOneStatement::Transaction represents a single credit transaction
+  class CapitalOneStatement::Transaction < Struct.new(
+                                             :id,
+                                             :day,
+                                             :month,
+                                             :description,
+                                             :amount_str,
+                                             :amount
+                                           )
+    # @!attribute id
+    #    @return [Fixnum] transaction id
+    #
+    # @!attribute day
+    #    @return [String] the day of the transaction
+    #
+    # @!attribute month
+    #    @return [String] the month of the transaction
+    #
+    # @!attribute description
+    #    @return [String] the description of the transaction
+    #
+    # @!attribute amount_str
+    #    @return [String] the dollar amount string of the transaction
+    #
+    # @!attribute amount
+    #    @return [Float] the dollar amount parsed into a Float, negative for payments
+
+    # @return [String] JSON representation of Transaction
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
   end
 end
