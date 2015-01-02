@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!file.README.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><div id='filecontents'>
+<h1 id="label-parse_capitalone_pdf_statement.rb">parse_capitalone_pdf_statement.rb</h1>
+
+<p>The Capital One website only provides a way to download structured data of
+credit card transaction history for the previous 180 days. However, you are
+able to download monthly PDF account statements for the previous few years.</p>
+
+<p>This library allows you to parse a Capital One PDF monthly statement, and
+access structured transaction history data.</p>
+
+<h1 id="label-Convert+PDF+to+JSON">Convert PDF to JSON</h1>
+
+<p>Use the <code>capitalone_pdf_to_json.rb</code> script to convert a PDF
+montly statement to JSON.</p>
+
+<pre class="code ruby"><code class="ruby">% ./capitalone_pdf_to_json.rb my_monthly_statement.pdf &gt; my_monthly_statement.json</code></pre>
+
+<h1 id="label-API+Example">API Example</h1>
+
+<p>Parse a PDF monthly statement and print all payments:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_statement'>statement</span> <span class='op'>=</span> <span class='const'>CapitalOneStatement</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_path_to_pdf_monthly_statement'>path_to_pdf_monthly_statement</span><span class='rparen'>)</span>
+
+<span class='id identifier rubyid_statement'>statement</span><span class='period'>.</span><span class='id identifier rubyid_payments'>payments</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_payment'>payment</span><span class='op'>|</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Transaction ID: %d</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Date:           %s</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_date'>date</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description:    %s</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Amount:         %.2f</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_amount'>amount</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>See the <a
+href="http://sortelli.github.io/parse_capitalone_pdf_statement/frames.html#!CapitalOneStatement.html">API
+Documentation</a> for more information.</p>
+
+<h1 id="label-License">License</h1>
+
+<p>Copyright © 2014 Joe Sortelli</p>
+
+<p>MIT License</p>
+</div></div>
+
+    <div id="footer">
+  Generated on Thu Jan  1 23:35:19 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>
