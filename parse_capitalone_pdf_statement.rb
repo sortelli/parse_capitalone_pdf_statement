@@ -19,6 +19,18 @@ class CapitalOneStatement
 
     @payments     = @payments    .sort_by &sort_by_trx_num
     @transactions = @transactions.sort_by &sort_by_trx_num
+
+    check_total(
+      'payments',
+      @total_payments,
+      @payments.inject(0) {|sum, trx| sum -= trx[:amount]}
+    )
+
+    check_total(
+      'transactions',
+      @total_transactions,
+      @transactions.inject(0) {|sum, trx| sum += trx[:amount]}
+    )
   end
 
   def to_json
@@ -84,5 +96,15 @@ class CapitalOneStatement
   def parse_amount(amount)
     num = amount.gsub(/[^\d.]/, '').to_f
     amount.start_with?(?() ? -num : num
+  end
+
+  def check_total(type, expected, actual)
+    return if actual.round(2) == expected.round(2)
+
+    raise "WARNING: Calculated %s payments mismatch %.2f != %.2f" % [
+      type,
+      actual,
+      expected
+    ]
   end
 end
