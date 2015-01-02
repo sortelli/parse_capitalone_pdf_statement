@@ -25,10 +25,10 @@ Parse a PDF monthly statement and print all payments:
 statement = CapitalOneStatement.new(path_to_pdf_monthly_statement)
 
 statement.payments.each do |payment|
-  puts 'Transaction ID: %d'    % payment.id
-  puts 'Date            %s/%s' % [payment.month, payment.day]
-  puts 'Description:    %s'    % payment.description
-  puts 'Amount:         %.2f'  % payment.amount
+  puts 'Transaction ID: %d'   % payment.id
+  puts 'Date:           %s'   % payment.date
+  puts 'Description:    %s'   % payment.description
+  puts 'Amount:         %.2f' % payment.amount
 end
 ```
 

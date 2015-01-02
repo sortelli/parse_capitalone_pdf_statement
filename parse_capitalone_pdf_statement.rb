@@ -1,5 +1,6 @@
 require 'pdf-reader'
 require 'json'
+require 'date'
 
 # CapitalOneStatement object, with data parsed from a PDF statement.
 #
@@ -25,6 +26,7 @@ require 'json'
 #    @return [Array<CapitalOneStatement::Transaction>] array of charge transactions
 
 class CapitalOneStatement
+  DATE_REGEX        = /(\w{3})\. \d+ - (\w{3})\. \d+, (\d{4}) *\d\d Days in Billing/
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
   TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
@@ -40,6 +42,8 @@ class CapitalOneStatement
               :transactions
 
   def initialize(pdf_path)
+    @dec_from_prev_year = nil
+    @year               = nil
     @previous_balance   = nil
     @total_payments     = nil
     @total_fees         = nil
@@ -94,6 +98,11 @@ class CapitalOneStatement
   end
 
   def parse_pdf_line(page_num, line, next_line)
+    if @date_info.nil? and line =~ DATE_REGEX
+      @dec_from_prev_year = ($1.upcase == 'DEC' && $2.upcase == 'JAN')
+      @year = $3.to_i
+    end
+
     if @previous_balance.nil?
       amount_strs = line.scan AMOUNT_REGEX
       if amount_strs.size == 5
@@ -130,8 +139,11 @@ class CapitalOneStatement
 
   def parse_transaction(line)
     return nil unless line =~ TRANSACTION_REGEX
+    raise "Failed to determine billing cycle dates" if @year.nil?
+    year = ($3.upcase == 'DEC' && @dec_from_prev_year) ? @year - 1 : @year
+    date = Date.parse('%s-%s-%s' % [year, $3, $2])
 
-    Transaction.new($1.to_i, $2, $3, $4, $5, parse_amount($5))
+    Transaction.new($1.to_i, date, $4, $5, parse_amount($5))
   end
 
   def parse_amount(amount)
@@ -152,8 +164,7 @@ class CapitalOneStatement
   # CapitalOneStatement::Transaction represents a single credit transaction
   class CapitalOneStatement::Transaction < Struct.new(
                                              :id,
-                                             :day,
-                                             :month,
+                                             :date,
                                              :description,
                                              :amount_str,
                                              :amount
@@ -161,11 +172,8 @@ class CapitalOneStatement
     # @!attribute id
     #    @return [Fixnum] transaction id
     #
-    # @!attribute day
-    #    @return [String] the day of the transaction
-    #
-    # @!attribute month
-    #    @return [String] the month of the transaction
+    # @!attribute date
+    #    @return [Date] the date of the transaction
     #
     # @!attribute description
     #    @return [String] the description of the transaction
