@@ -29,7 +29,7 @@ class CapitalOneStatement
   DATE_REGEX        = /(\w{3})\. \d+ - (\w{3})\. \d+, (\d{4}) *\d\d Days in Billing/
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
-  TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
+  TRANSACTION_REGEX = /^ *(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
                         AMOUNT_REGEX.source
                       }) *$/
 
@@ -124,12 +124,12 @@ class CapitalOneStatement
       end
     end
 
-    indexes  = page_num == 0 ? [(5..76)] : [(0..71), (82..-1)]
-    trx_strs = indexes.map do |index|
-      repair_transaction_line line[index], next_line.to_s[index].to_s
-    end
+    transactions, payments = [(0..78), (80..-1)].map do |index|
+      str      = line     .to_s[index].to_s
+      next_str = next_line.to_s[index].to_s
 
-    transactions, payments = trx_strs.map do |str|
+      repair_transaction_line str, next_str
+    end.map do |str|
       parse_transaction(str)
     end.compact.partition do |trx|
       trx[:amount] >= 0
@@ -164,7 +164,7 @@ class CapitalOneStatement
   def check_total(type, expected, actual)
     return if actual.round(2) == expected.round(2)
 
-    raise "WARNING: Calculated %s payments mismatch %.2f != %.2f" % [
+    raise "Calculated %s payments mismatch %.2f != %.2f" % [
       type,
       actual,
       expected
