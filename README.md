@@ -1,4 +1,4 @@
-# parse_capitalone_pdf_statement.rb
+# parse_capitalone_pdf_statement
 
 The Capital One website only provides a way to download structured
 data of credit card transaction history for the previous 180 days.
@@ -14,7 +14,7 @@ Use the ```capitalone_pdf_to_json.rb``` script to convert a PDF
 montly statement to JSON.
 
 ```bash
-% ./capitalone_pdf_to_json.rb my_monthly_statement.pdf > my_monthly_statement.json
+% ./bin/capitalone_pdf_to_json.rb my_monthly_statement.pdf > my_monthly_statement.json
 ```
 
 # API Example
