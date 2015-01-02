@@ -1,3 +1,4 @@
+require 'parse_capitalone_pdf_statement/version'
 require 'pdf-reader'
 require 'json'
 require 'date'

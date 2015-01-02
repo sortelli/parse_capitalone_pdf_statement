@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
-require_relative "../lib/parse_capitalone_pdf_statement"
+require "parse_capitalone_pdf_statement"
 
 unless ARGV.size == 1
   $stderr.puts "usage: #{File.basename(__FILE__)} statement.pdf"

@@ -1,6 +1,4 @@
 source "https://rubygems.org"
 
-gem "pdf-reader"
-gem "json"
-
-gem "yard", :group => :development
+# Specify your gem's dependencies in parse_capitalone_pdf_statement.gemspec
+gemspec
