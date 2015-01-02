@@ -3,21 +3,30 @@ require 'json'
 
 class CapitalOneStatement
   TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(\(?\$[0-9,.]+\)?) *$/
-  SUMMARY_REGEX = Regexp.new([
-    'Previous Balance',
-    'Payments and Credits',
-    'Fees and Interest Charged',
-    'Transactions',
-    'New Balance'
-  ].join(" *"))
 
   def initialize(pdf_path)
-    @transactions = []
-    @payments     = []
+    @transactions       = []
+    @payments           = []
+    @previous_balance   = nil
+    @total_payments     = nil
+    @total_fees         = nil
+    @total_transactions = nil
+    @new_balance        = nil
 
     @reader = PDF::Reader.new(pdf_path)
     @reader.pages.each_with_index do |page, page_num|
       page.text.split("\n").each do |line|
+        if @previous_balance.nil?
+          amount_strs = line.scan(/\$[\d,.]+/)
+          if amount_strs.size == 5
+            @previous_balance,
+            @total_payments,
+            @total_fees,
+            @total_transactions,
+            @new_balance = amount_strs.map {|amount| parse_amount(amount)}
+          end
+        end
+
         trx_strs = if page_num == 0
           [line[5, 72]]
         else
@@ -38,8 +47,13 @@ class CapitalOneStatement
 
   def to_json
     JSON.pretty_generate({
-      :payments     => @payments,
-      :transactions => @transactions
+      :previous_balance   => @previous_balance,
+      :total_payments     => @total_payments,
+      :total_fees         => @total_fees,
+      :total_transactions => @total_transactions,
+      :new_balance        => @new_balance,
+      :payments           => @payments,
+      :transactions       => @transactions
     })
   end
 
