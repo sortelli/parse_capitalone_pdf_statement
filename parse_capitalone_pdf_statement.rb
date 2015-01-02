@@ -87,8 +87,23 @@ class CapitalOneStatement
   private
 
   def parse_from_pdf(pdf_path)
-    reader = PDF::Reader.new(pdf_path)
-    reader.pages.each_with_index do |page, page_num|
+    PDF::Reader.new(pdf_path).pages.each_with_index do |page, page_num|
+      if @year.nil?
+        walker = Struct.new(:year, :dec_from_prev_year) do
+          def show_text_with_positioning(strings)
+            if strings.any? {|str| str =~ /(\w{3})\. \d+ - (\w{3})\. \d+, (\d{4})/}
+              self.dec_from_prev_year = ($1.upcase == 'DEC' && $2.upcase == 'JAN')
+              self.year               = $3.to_i
+            end
+          end
+        end.new
+
+        page.walk walker
+
+        @dec_from_prev_year = walker.dec_from_prev_year
+        @year               = walker.year
+      end
+
       enum = page.text.split("\n").each
 
       loop do
@@ -98,11 +113,6 @@ class CapitalOneStatement
   end
 
   def parse_pdf_line(page_num, line, next_line)
-    if @date_info.nil? and line =~ DATE_REGEX
-      @dec_from_prev_year = ($1.upcase == 'DEC' && $2.upcase == 'JAN')
-      @year = $3.to_i
-    end
-
     if @previous_balance.nil?
       amount_strs = line.scan AMOUNT_REGEX
       if amount_strs.size == 5
