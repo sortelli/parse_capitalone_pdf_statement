@@ -148,7 +148,9 @@ class CapitalOneStatement
   end
 
   def parse_transaction(line)
-    return nil unless line =~ TRANSACTION_REGEX
+    return nil unless line =~ TRANSACTION_REGEX &&
+                      $4   != "CAPITAL ONE MEMBER FEE"
+
     raise "Failed to determine billing cycle dates" if @year.nil?
     year = ($3.upcase == 'DEC' && @dec_from_prev_year) ? @year - 1 : @year
     date = Date.parse('%s-%s-%s' % [year, $3, $2])
