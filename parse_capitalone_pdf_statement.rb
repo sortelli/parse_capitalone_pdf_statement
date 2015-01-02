@@ -2,7 +2,13 @@ require 'pdf-reader'
 require 'json'
 require 'date'
 
-# CapitalOneStatement object, with data parsed from a PDF statement.
+# CapitalOneStatement object, with data parsed from a PDF monthly statement.
+#
+# @!attribute start_date [r]
+#    @return [Date] the first day of the monthly statement
+#
+# @!attribute end_date [r]
+#    @return [Date] the final day of the monthly statement
 #
 # @!attribute previous_balance [r]
 #    @return [Float] the "Previous Balance" field listed in the statement
@@ -26,14 +32,16 @@ require 'date'
 #    @return [Array<CapitalOneStatement::Transaction>] array of charge transactions
 
 class CapitalOneStatement
-  DATE_REGEX        = /(\w{3})\. \d+ - (\w{3})\. \d+, (\d{4}) *\d\d Days in Billing/
+  DATE_REGEX        = /(\w{3})\. (\d\d) - (\w{3})\. (\d\d), (\d{4})/
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
   TRANSACTION_REGEX = /^ *(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
                         AMOUNT_REGEX.source
                       }) *$/
 
-  attr_reader :previous_balance,
+  attr_reader :start_date,
+              :end_date,
+              :previous_balance,
               :total_payments,
               :total_fees,
               :total_transactions,
@@ -44,6 +52,8 @@ class CapitalOneStatement
   def initialize(pdf_path)
     @dec_from_prev_year = nil
     @year               = nil
+    @start_date         = nil
+    @end_date           = nil
     @previous_balance   = nil
     @total_payments     = nil
     @total_fees         = nil
@@ -74,6 +84,8 @@ class CapitalOneStatement
 
   def to_json(*args)
     {
+      :start_date         => @start_date,
+      :end_date           => @end_date,
       :previous_balance   => @previous_balance,
       :total_payments     => @total_payments,
       :total_fees         => @total_fees,
@@ -89,19 +101,23 @@ class CapitalOneStatement
   def parse_from_pdf(pdf_path)
     PDF::Reader.new(pdf_path).pages.each_with_index do |page, page_num|
       if @year.nil?
-        walker = Struct.new(:year, :dec_from_prev_year) do
+        walker = Struct.new(:year, :offset, :start_date, :end_date) do
           def show_text_with_positioning(strings)
-            if strings.any? {|str| str =~ /(\w{3})\. \d+ - (\w{3})\. \d+, (\d{4})/}
-              self.dec_from_prev_year = ($1.upcase == 'DEC' && $2.upcase == 'JAN')
-              self.year               = $3.to_i
+            if strings.any? {|str| str =~ DATE_REGEX}
+              self.offset     = ($1.upcase == 'DEC' && $3.upcase == 'JAN') ? 1 : 0
+              self.year       = $5.to_i
+              self.start_date = Date.parse('%s-%s-%s' % [year - offset, $1, $2])
+              self.end_date   = Date.parse('%s-%s-%s' % [year, $3, $4])
             end
           end
         end.new
 
         page.walk walker
 
-        @dec_from_prev_year = walker.dec_from_prev_year
+        @dec_from_prev_year = walker.offset == 1
         @year               = walker.year
+        @start_date         = walker.start_date
+        @end_date           = walker.end_date
       end
 
       enum = page.text.split("\n").each
