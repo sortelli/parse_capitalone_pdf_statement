@@ -2,7 +2,11 @@ require 'pdf-reader'
 require 'json'
 
 class CapitalOneStatement
-  TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(\(?\$[0-9,.]+\)?) *$/
+  AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
+  AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
+  TRANSACTION_REGEX = /^(\d+) +(\d\d) ([A-Z][A-Z][A-Z]) (.+[^ ]) +(#{
+                        AMOUNT_REGEX.source
+                      }) *$/
 
   def initialize(pdf_path)
     @previous_balance   = nil
@@ -50,33 +54,46 @@ class CapitalOneStatement
   def parse_from_pdf(pdf_path)
     reader = PDF::Reader.new(pdf_path)
     reader.pages.each_with_index do |page, page_num|
-      page.text.split("\n").each do |line|
-        if @previous_balance.nil?
-          amount_strs = line.scan(/\$[\d,.]+/)
-          if amount_strs.size == 5
-            @previous_balance,
-            @total_payments,
-            @total_fees,
-            @total_transactions,
-            @new_balance = amount_strs.map {|amount| parse_amount(amount)}
-          end
-        end
+      enum = page.text.split("\n").each
 
-        trx_strs = if page_num == 0
-          [line[5, 72]]
-        else
-          [line[0, 72], line[82..-1]]
-        end
-
-        transactions, payments = trx_strs.map do |str|
-          parse_transaction(str)
-        end.compact.partition do |trx|
-          trx[:amount] >= 0
-        end
-
-        @transactions += transactions
-        @payments     += payments
+      loop do
+        parse_pdf_line(page_num, enum.next, (enum.peek() rescue nil))
       end
+    end
+  end
+
+  def parse_pdf_line(page_num, line, next_line)
+    if @previous_balance.nil?
+      amount_strs = line.scan AMOUNT_REGEX
+      if amount_strs.size == 5
+        @previous_balance,
+        @total_payments,
+        @total_fees,
+        @total_transactions,
+        @new_balance = amount_strs.map {|amount| parse_amount(amount)}
+      end
+    end
+
+    indexes  = page_num == 0 ? [(5..76)] : [(0..71), (82..-1)]
+    trx_strs = indexes.map do |index|
+      repair_transaction_line line[index], next_line.to_s[index].to_s
+    end
+
+    transactions, payments = trx_strs.map do |str|
+      parse_transaction(str)
+    end.compact.partition do |trx|
+      trx[:amount] >= 0
+    end
+
+    @transactions += transactions
+    @payments     += payments
+  end
+
+  def repair_transaction_line(line, next_line)
+    if next_line =~ AMOUNT_ONLY_REGEX && !(line =~ AMOUNT_REGEX)
+      line += " #{next_line.strip}"
+    else
+      line
     end
   end
 
