@@ -32,7 +32,8 @@ statement.payments.each do |payment|
 end
 ```
 
-See the [API Documentation](http://sortelli.github.io/parse_capitalone_pdf_statement)
+See the [API
+Documentation](http://sortelli.github.io/parse_capitalone_pdf_statement/frames.html#!CapitalOneStatement.html)
 for more information.
 
 # License
