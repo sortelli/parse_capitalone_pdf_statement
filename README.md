@@ -2,20 +2,38 @@
 
 The Capital One website only provides a way to download structured
 data of credit card transaction history for the previous 180 days.
-However, you are able to download PDF account statements for the
-previous few years.
+However, you are able to download monthly PDF account statements
+for the previous few years.
 
-This library allows you to parse a Capital One PDF statement, and
-access structured transaction history data.
+This library allows you to parse a Capital One PDF monthly statement,
+and access structured transaction history data.
 
 # Convert PDF to JSON
 
 Use the ```capitalone_pdf_to_json.rb``` script to convert a PDF
-statement to JSON.
+montly statement to JSON.
 
 ```bash
-% ./capitalone_pdf_to_json.rb my_statement.pdf > my_statement.json
+% ./capitalone_pdf_to_json.rb my_monthly_statement.pdf > my_monthly_statement.json
 ```
+
+# API Example
+
+Parse a PDF monthly statement and print all payments:
+
+```ruby
+statement = CapitalOneStatement.new(path_to_pdf_monthly_statement)
+
+statement.payments.each do |payment|
+  puts 'Transaction ID: %d'    % payment.id
+  puts 'Date            %s/%s' % [payment.month, payment.day]
+  puts 'Description:    %s'    % payment.description
+  puts 'Amount:         %.2f'  % payment.amount
+end
+```
+
+See the [API Documentation](http://sortelli.github.io/parse_capitalone_pdf_statement)
+for more information.
 
 # License
 

@@ -13,6 +13,7 @@ GEM
       ttfunk
     ruby-rc4 (0.1.5)
     ttfunk (1.4.0)
+    yard (0.8.7.6)
 
 PLATFORMS
   ruby
@@ -20,3 +21,4 @@ PLATFORMS
 DEPENDENCIES
   json
   pdf-reader
+  yard
