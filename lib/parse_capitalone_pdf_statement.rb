@@ -106,8 +106,14 @@ class CapitalOneStatement
     PDF::Reader.new(pdf_path).pages.each_with_index do |page, page_num|
       if @year.nil?
         walker = Struct.new(:year, :offset, :start_date, :end_date) do
-          def show_text_with_positioning(strings)
-            if strings.any? {|str| str =~ DATE_REGEX}
+          def respond_to?(_)
+            true
+          end
+
+          def method_missing(name, *args)
+            return unless name =~ /show_text/
+
+            if args.any? {|str| str.to_s =~ DATE_REGEX}
               self.offset     = ($1.upcase == 'DEC' && $3.upcase == 'JAN') ? 1 : 0
               self.year       = $5.to_i
               self.start_date = Date.parse('%s-%s-%s' % [year - offset, $1, $2])
