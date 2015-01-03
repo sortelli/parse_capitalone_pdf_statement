@@ -25,8 +25,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "pdf-reader"
-  spec.add_dependency "json"
+  spec.add_dependency "pdf-reader", "~> 1.3.3"
+  spec.add_dependency "json",       "~> 1.8.1"
 
-  spec.add_development_dependency "yard"
+  spec.add_development_dependency "yard", "~> 0.8.7"
 end
