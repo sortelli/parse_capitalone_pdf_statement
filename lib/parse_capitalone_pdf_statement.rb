@@ -133,7 +133,11 @@ class CapitalOneStatement
       enum = page.text.split("\n").each
 
       loop do
-        parse_pdf_line(page_num, enum.next, (enum.peek() rescue nil))
+        current_line = enum.next
+        enum.next until (enum.peek rescue nil) != ''
+        next_line    = (enum.peek rescue nil)
+
+        parse_pdf_line page_num, current_line, next_line
       end
     end
   end
