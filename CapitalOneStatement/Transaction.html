@@ -96,7 +96,7 @@
   
   
     <dt class="r2 last">Defined in:</dt>
-    <dd class="r2 last">parse_capitalone_pdf_statement.rb</dd>
+    <dd class="r2 last">lib/parse_capitalone_pdf_statement.rb</dd>
   
 </dl>
 <div class="clear"></div>
@@ -168,6 +168,33 @@
   
     <span class="summary_desc"><div class='inline'>
 <p>The dollar amount string of the transaction.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#card_number-instance_method" title="#card_number (instance method)">- (Fixnum) <strong>card_number</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The last four digits of the account number.</p>
 </div></span>
   
 </li>
@@ -345,12 +372,12 @@
       <pre class="lines">
 
 
-223
-224
-225</pre>
+243
+244
+245</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_amount'>amount</span>
   <span class='ivar'>@amount</span>
@@ -406,15 +433,76 @@
       <pre class="lines">
 
 
-223
-224
-225</pre>
+243
+244
+245</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_amount_str'>amount_str</span>
   <span class='ivar'>@amount_str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="card_number=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="card_number-instance_method">
+  
+    - (<tt>Fixnum</tt>) <strong>card_number</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the last four digits of the account number</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the last four digits of the account number</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_card_number'>card_number</span>
+  <span class='ivar'>@card_number</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -467,12 +555,12 @@
       <pre class="lines">
 
 
-223
-224
-225</pre>
+243
+244
+245</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_date'>date</span>
   <span class='ivar'>@date</span>
@@ -528,12 +616,12 @@
       <pre class="lines">
 
 
-223
-224
-225</pre>
+243
+244
+245</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_description'>description</span>
   <span class='ivar'>@description</span>
@@ -589,12 +677,12 @@
       <pre class="lines">
 
 
-223
-224
-225</pre>
+243
+244
+245</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 243</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_id'>id</span>
   <span class='ivar'>@id</span>
@@ -655,12 +743,12 @@
       <pre class="lines">
 
 
-246
-247
-248</pre>
+270
+271
+272</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'parse_capitalone_pdf_statement.rb', line 246</span>
+      <pre class="code"><span class="info file"># File 'lib/parse_capitalone_pdf_statement.rb', line 270</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -675,7 +763,7 @@
 </div>
 
     <div id="footer">
-  Generated on Fri Jan  2 03:02:27 2015 by
+  Generated on Sat Jan  3 18:34:24 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.4).
 </div>

@@ -62,7 +62,15 @@
     <iframe id="search_frame"></iframe>
 
     <div id="content"><div id='filecontents'>
-<h1 id="label-parse_capitalone_pdf_statement.rb">parse_capitalone_pdf_statement.rb</h1>
+<h1 id="label-parse_capitalone_pdf_statement">parse_capitalone_pdf_statement</h1>
+
+<p><a href="http://badge.fury.io/rb/parse_capitalone_pdf_statement"><img
+src="https://badge.fury.io/rb/parse_capitalone_pdf_statement.svg"></a> <a
+href="https://travis-ci.org/sortelli/parse_capitalone_pdf_statement"><img
+src="https://travis-ci.org/sortelli/parse_capitalone_pdf_statement.svg?branch=develop"></a>
+<a
+href="https://gemnasium.com/sortelli/parse_capitalone_pdf_statement"><img
+src="https://gemnasium.com/sortelli/parse_capitalone_pdf_statement.svg"></a></p>
 
 <p>The Capital One website only provides a way to download structured data of
 credit card transaction history for the previous 180 days. However, you are
@@ -71,21 +79,39 @@ able to download monthly PDF account statements for the previous few years.</p>
 <p>This library allows you to parse a Capital One PDF monthly statement, and
 access structured transaction history data.</p>
 
-<h1 id="label-Convert+PDF+to+JSON">Convert PDF to JSON</h1>
+<h2 id="label-Installation">Installation</h2>
+
+<p>Add this line to your application&#39;s Gemfile:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parse_capitalone_pdf_statement</span><span class='tstring_end'>&#39;</span></span>
+</code></pre>
+
+<p>And then execute:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='tstring'><span class='tstring_beg'>% </span><span class='tstring_end'>bundle</span></span></code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre class="code ruby"><code class="ruby">% gem install parse_capitalone_pdf_statement</code></pre>
+
+<h2 id="label-Convert+PDF+to+JSON">Convert PDF to JSON</h2>
 
 <p>Use the <code>capitalone_pdf_to_json.rb</code> script to convert a PDF
 montly statement to JSON.</p>
 
-<pre class="code ruby"><code class="ruby">% ./capitalone_pdf_to_json.rb my_monthly_statement.pdf &gt; my_monthly_statement.json</code></pre>
+<pre class="code ruby"><code class="ruby">% capitalone_pdf_to_json.rb my_monthly_statement.pdf &gt; my_monthly_statement.json</code></pre>
 
-<h1 id="label-API+Example">API Example</h1>
+<h2 id="label-API+Example">API Example</h2>
 
 <p>Parse a PDF monthly statement and print all payments:</p>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_statement'>statement</span> <span class='op'>=</span> <span class='const'>CapitalOneStatement</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_path_to_pdf_monthly_statement'>path_to_pdf_monthly_statement</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parse_capitalone_pdf_statement</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_statement'>statement</span> <span class='op'>=</span> <span class='const'>CapitalOneStatement</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/path/to/my_monthly_statement.pdf</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 
 <span class='id identifier rubyid_statement'>statement</span><span class='period'>.</span><span class='id identifier rubyid_payments'>payments</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_payment'>payment</span><span class='op'>|</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Transaction ID: %d</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Card Number:    %d</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_card_number'>card_number</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Date:           %s</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_date'>date</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description:    %s</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Amount:         %.2f</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_payment'>payment</span><span class='period'>.</span><span class='id identifier rubyid_amount'>amount</span>
@@ -96,7 +122,7 @@ montly statement to JSON.</p>
 href="http://sortelli.github.io/parse_capitalone_pdf_statement/frames.html#!CapitalOneStatement.html">API
 Documentation</a> for more information.</p>
 
-<h1 id="label-License">License</h1>
+<h2 id="label-License">License</h2>
 
 <p>Copyright © 2014 Joe Sortelli</p>
 
@@ -104,7 +130,7 @@ Documentation</a> for more information.</p>
 </div></div>
 
     <div id="footer">
-  Generated on Fri Jan  2 03:02:27 2015 by
+  Generated on Sat Jan  3 18:34:24 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.4).
 </div>
