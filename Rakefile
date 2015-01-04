@@ -20,7 +20,8 @@ task :make_test_pdf do
   text_to_pdf = 'enscript -B -f "Times-Roman6.0" %s --output=- | ps2pdf - > %s'
 
   Dir.chdir(File.join(File.dirname(__FILE__), 'test', 'data')) do
-    %w{test_statement bad_statement1}.each do |name|
+    Dir['*statement*.txt']. each do |name|
+      name = name.sub(/\.txt$/, '')
       system(text_to_pdf % [name + '.txt', name + '.pdf'])
     end
   end
