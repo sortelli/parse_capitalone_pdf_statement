@@ -36,6 +36,7 @@ require 'date'
 #    @return [Array<CapitalOneStatement::Transaction>] array of fee transactions
 
 class CapitalOneStatement
+  CARD_NUMBER_REGEX = /(?:TRANSACTIONS|ADJUSTMENTS) FOR [^#]+ #(\d{4})/
   DATE_REGEX        = /(\w{3})\. (\d\d) - (\w{3})\. (\d\d), (\d{4})/
   AMOUNT_REGEX      = /\(?\$[\d,]+\.\d\d\)?/
   AMOUNT_ONLY_REGEX = /^ *#{AMOUNT_REGEX.source} *$/
@@ -56,6 +57,7 @@ class CapitalOneStatement
               :transactions
 
   def initialize(pdf_path)
+    @card_number        = nil
     @dec_from_prev_year = nil
     @year               = nil
     @start_date         = nil
@@ -143,6 +145,10 @@ class CapitalOneStatement
   end
 
   def parse_pdf_line(page_num, line, next_line)
+    if line =~ CARD_NUMBER_REGEX
+      @card_number = $1.to_i
+    end
+
     if @previous_balance.nil?
       amount_strs = line.scan AMOUNT_REGEX
       if amount_strs.size == 5
@@ -157,9 +163,10 @@ class CapitalOneStatement
     end
 
     if line =~ FEES_REGEX && $1 != '$0.00'
-      check_billing_cycle
+      check_parse_state
       @fees << Transaction.new(
         @fees.size + 1,
+        @card_number,
         @end_date, "CAPITAL ONE MEMBER FEE",
         $1,
         parse_amount($1)
@@ -167,9 +174,10 @@ class CapitalOneStatement
     end
 
     if line =~ INTEREST_REGEX && $1 != '$0.00'
-      check_billing_cycle
+      check_parse_state
       @fees << Transaction.new(
         @fees.size + 1,
+        @card_number,
         @end_date, "INTEREST CHARGE:PURCHASES",
         $1,
         parse_amount($1)
@@ -203,12 +211,12 @@ class CapitalOneStatement
     return nil unless line =~ TRANSACTION_REGEX &&
                       $4   != "CAPITAL ONE MEMBER FEE"
 
-    check_billing_cycle
+    check_parse_state
 
     year = ($3.upcase == 'DEC' && @dec_from_prev_year) ? @year - 1 : @year
     date = Date.parse('%s-%s-%s' % [year, $3, $2])
 
-    Transaction.new($1.to_i, date, $4, $5, parse_amount($5))
+    Transaction.new($1.to_i, @card_number, date, $4, $5, parse_amount($5))
   end
 
   def parse_amount(amount)
@@ -216,8 +224,9 @@ class CapitalOneStatement
     amount.start_with?(?() ? -num : num
   end
 
-  def check_billing_cycle
+  def check_parse_state
     raise "Failed to determine billing cycle dates" if @year.nil?
+    raise "Failed to determine card number"         if @card_number.nil?
   end
 
   def check_total(type, expected, actual)
@@ -233,6 +242,7 @@ class CapitalOneStatement
   # CapitalOneStatement::Transaction represents a single credit transaction
   class CapitalOneStatement::Transaction < Struct.new(
                                              :id,
+                                             :card_number,
                                              :date,
                                              :description,
                                              :amount_str,
@@ -240,6 +250,9 @@ class CapitalOneStatement
                                            )
     # @!attribute id
     #    @return [Fixnum] transaction id
+    #
+    # @!attribute card_number
+    #    @return [Fixnum] the last four digits of the account number
     #
     # @!attribute date
     #    @return [Date] the date of the transaction
