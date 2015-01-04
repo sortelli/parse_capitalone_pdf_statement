@@ -53,6 +53,7 @@ statement = CapitalOneStatement.new('/path/to/my_monthly_statement.pdf')
 
 statement.payments.each do |payment|
   puts 'Transaction ID: %d'   % payment.id
+  puts 'Card Number:    %d'   % payment.card_number
   puts 'Date:           %s'   % payment.date
   puts 'Description:    %s'   % payment.description
   puts 'Amount:         %.2f' % payment.amount

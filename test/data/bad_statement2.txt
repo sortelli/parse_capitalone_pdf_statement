@@ -5,7 +5,7 @@
 
      Previous Balance               Payments and Credits            Fees and Interest Charged                Transactions                    New Balance
 
-          $2,345.67          -             $7,234.56           +              $98.76            +              $3,456.78          =            $4666.65
+          $2,345.67          -             $7,234.56           +             $198.76            +              $3,456.78          =            $4666.65
 
 
 
@@ -95,7 +95,7 @@ XXXXXXXXXXXXX                                                Account ending in 1
 
 TRANSACTIONS CONTINUED
 
-TRANSACTIONS FOR FOO J BAR #4567 (CONTINUED)                                      TRANSACTIONS FOR FOO J BAR #7890 (CONTINUED)
+TRANSACTIONS FOR FOO J BAR #1234 (CONTINUED)                                      TRANSACTIONS FOR FOO J BAR #1234 (CONTINUED)
 3    10 DEC TRANSACTION--03030303030303030303030303030303030303030303030303 $12.85  42   18 DEC TRANSACTION--4242424242424242424242424242424242424242424242 $405.00
 4    11 DEC TRANSACTION--04040404040404040404040404040404040404040404040404  $3.75                       XXX: XXXXXXXXXXXXX
                                                                                                         XXXX: XXXXXXXXXXXXXXX
