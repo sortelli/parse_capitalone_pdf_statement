@@ -223,7 +223,7 @@ class CapitalOneStatement
   def check_total(type, expected, actual)
     return if actual.round(2) == expected.round(2)
 
-    raise "Calculated %s payments mismatch %.2f != %.2f" % [
+    raise "Calculated %s mismatch %.2f != %.2f" % [
       type,
       actual,
       expected
